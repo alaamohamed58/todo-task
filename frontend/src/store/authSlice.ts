@@ -3,10 +3,9 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "../api/axios";
 import Cookies from "js-cookie";
 
-
 interface User {
-  email : string,
-  user_id : number
+  email: string;
+  user_id: number;
 }
 
 interface AuthState {
@@ -22,7 +21,7 @@ const initialState: AuthState = {
   status: "idle",
   httpErr: null,
   isAuthenticated: Cookies.get("app-token") ? true : false,
-  user: null,
+  user: JSON.parse(sessionStorage.getItem("user") as string) || null,
   token: Cookies.get("app-token") || null,
   isTokenValid: false,
 };
@@ -73,7 +72,7 @@ export const loginAsync = createAsyncThunk(
       });
 
       const results = response.data;
-  
+
       return { user: results.data.user, token: results.data.accessToken };
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message);
@@ -85,16 +84,15 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    resetState : (state)=> {
-
-      state.status ='idle'
+    resetState: (state) => {
+      state.status = "idle";
     },
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
       state.token = null;
       state.isTokenValid = false;
-      state.status ='idle'
+      state.status = "idle";
       Cookies.remove("app-token");
     },
   },
@@ -111,7 +109,8 @@ const authSlice = createSlice({
           state.token = action.payload.token;
           state.isTokenValid = true;
           Cookies.set("app-token", state.token);
-          sessionStorage.setItem("user", String(state.user.user_id));
+          sessionStorage.setItem("user_id", String(state.user.user_id));
+          sessionStorage.setItem("user", JSON.stringify(state.user));
           console.log(action.payload.user);
         }
       )

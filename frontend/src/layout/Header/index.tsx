@@ -14,7 +14,6 @@ import { logout } from "../../store/authSlice";
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
     const {user } = useAppSelector((state)=>state.auth)
-  console.log(user)
     const userEmail = user?.email 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 

@@ -23,6 +23,17 @@ export class TasksService {
     });
   }
 
+  async getAllTasksByUserIdAndCategory(
+    userId: number,
+    category_id: number,
+  ): Promise<Task[]> {
+    return await this.taskRepository.find({
+      where: { user_id: userId, category_id: category_id },
+
+      relations: ['category'],
+    });
+  }
+
   async getTaskById(id: number): Promise<Task> {
     return await this.taskRepository.findOne({ where: { task_id: id } });
   }

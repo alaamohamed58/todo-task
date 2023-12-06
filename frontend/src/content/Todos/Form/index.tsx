@@ -3,11 +3,9 @@ import {
   useEffect,
   ChangeEvent,
   FormEvent,
-  useCallback,
 } from "react";
 import { Dialog, DialogContent, Stack } from "@mui/material";
 import { useAppDispatch } from "../../../hooks";
-import axios from "../../../api/axios";
 import Input from "./Input";
 import { createTodoAsync, updateTodoAsync } from "../../../store/todosSlice";
 import Todo from "../../../interfaces/todo.interface";
@@ -15,9 +13,10 @@ import Todo from "../../../interfaces/todo.interface";
 interface Prop {
   open: boolean;
   closeFormHandler: () => void;
+  categories : any[]
 }
 
-const Form = ({ open, closeFormHandler }: Prop) => {
+const Form = ({ open, closeFormHandler ,categories }: Prop) => {
   const selectedTask = sessionStorage.getItem("task")
     ? JSON.parse(sessionStorage.getItem("task") as string)
     : null;
@@ -28,7 +27,6 @@ const Form = ({ open, closeFormHandler }: Prop) => {
     due_date: "",
   });
 
-  const [categories, setCategories] = useState([]);
 
   const [selectedCategory, setCategoryId] = useState<number | string>("");
 
@@ -41,18 +39,17 @@ const Form = ({ open, closeFormHandler }: Prop) => {
       const parsedTask = JSON.parse(storedTask);
       setTask(parsedTask);
       setCategoryId(parsedTask.category_id || "");
+    } else {
+      setTask({
+        title: "",
+        description: "",
+        due_date: "",
+      });
+      setCategoryId("");
     }
   }, [open]);
-  const getAllCategories = useCallback(async (): Promise<void | Error> => {
-    try {
-      const response = await axios.get("category");
-      const results = await response.data;
 
-      setCategories(results);
-    } catch (err) {
-      console.log(err);
-    }
-  }, [dispatch]);
+
 
   const updateStatus = (task: Todo) => {
     dispatch(
@@ -69,7 +66,6 @@ const Form = ({ open, closeFormHandler }: Prop) => {
   const submitHandler = (e: FormEvent) => {
     e.preventDefault();
     if (selectedTask) {
-   
       updateStatus({
         ...task,
         category_id: selectedCategory,
@@ -83,9 +79,6 @@ const Form = ({ open, closeFormHandler }: Prop) => {
     );
   };
 
-  useEffect(() => {
-    getAllCategories();
-  }, [getAllCategories, dispatch]);
 
   return (
     <Dialog open={open} onClose={closeFormHandler} fullWidth>

@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import Todo from "../interfaces/todo.interface";
 
 const token = Cookies.get("app-token");
-const userId = Number(sessionStorage.getItem("user"));
+const userId = Number(sessionStorage.getItem("user_id"));
 
 interface TodosState {
   status: "idle" | "pending" | "loading" | "succeeded" | "failed";
@@ -58,6 +58,26 @@ export const getTodosAsync = createAsyncThunk(
   }
 );
 
+export const getFilteredTodosAsync = createAsyncThunk(
+  "todos/filteredTodos",
+  async (todoId: number, thunkAPI) => {
+    try {
+      const response = await axios.get(
+        `tasks/getAllFilteredTasks/${userId}/${todoId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const todos = response.data;
+      return todos;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
 export const deleteTodoAsync = createAsyncThunk(
   `todos/deleteTodo`,
   async (todoId: number, thunkAPI) => {
@@ -77,7 +97,10 @@ export const deleteTodoAsync = createAsyncThunk(
 
 export const updateTodoAsync = createAsyncThunk(
   "todos/updateTodo",
-  async ({ task_id, status, title, description, due_date, category_id }: Todo, thunkAPI) => {
+  async (
+    { task_id, status, title, description, due_date, category_id }: Todo,
+    thunkAPI
+  ) => {
     try {
       await axios.put(
         `tasks/${task_id}`,
@@ -86,7 +109,7 @@ export const updateTodoAsync = createAsyncThunk(
           title,
           description,
           due_date,
-          category_id
+          category_id,
         },
         {
           headers: {
@@ -133,6 +156,16 @@ const todosSlice = createSlice({
       .addCase(getTodosAsync.rejected, (state, action) => {
         state.status = "failed";
       })
+      .addCase(getFilteredTodosAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(
+        getFilteredTodosAsync.fulfilled,
+        (state, action: PayloadAction<Todo[]>) => {
+          state.status = "succeeded";
+          state.todos = action.payload;
+        }
+      )
       .addCase(deleteTodoAsync.pending, (state) => {
         state.status = "loading";
       })

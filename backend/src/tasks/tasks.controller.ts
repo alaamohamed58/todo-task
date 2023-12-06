@@ -42,6 +42,18 @@ export class TasksController {
     return await this.tasksService.getAllTasksByUser(id);
   }
 
+  @Get('getAllFilteredTasks/:id/:category_id')
+  @ApiOperation({ summary: 'Get task by id', description: 'Get task by id' })
+  async getAllTasksByUserIdAndCategory(
+    @Param('id') id: number,
+    @Param('category_id') categort_id: number,
+  ): Promise<Task[]> {
+    return await this.tasksService.getAllTasksByUserIdAndCategory(
+      id,
+      categort_id,
+    );
+  }
+
   @Put(':id')
   @ApiOperation({
     summary: 'Update task by id',

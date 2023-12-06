@@ -21,7 +21,6 @@ import { deleteTodoAsync, updateTodoAsync } from "../../store/todosSlice";
 
 interface Prop {
   todos: Todo[];
-
   openFormHandler: () => void;
 }
 
